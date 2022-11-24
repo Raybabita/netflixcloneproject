@@ -61,4 +61,26 @@ router.get('/profile', checkAuth, (req, res) => {
 })
 
 
+
+//UPDATE
+router.put("/:id", (request, response) => {
+    if (request.body.userId === request.params.id) {
+        if (request.body.password) {
+            const salt = bcrypt.genSalt(10);
+            request.body.password = bcrypt.hash(request.body.password, salt);
+        }
+        try {
+            const updatedUser = User.findByIdAndUpdate(request.params.id, {
+                $set: request.body,
+            }, { new: true }
+            );
+            response.status(200).json(updatedUser);
+        } catch (error) {
+            response.status(500).json({ message: error.message });
+        }
+    } else {
+        response.status(401).json("You update only your account")
+    }
+})
+
 module.exports = router
